@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Модульна робота — JavaScript</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:14px}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:18px 32px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:20px}
+.tag{background:rgba(255,255,255,.15);color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;border:1px solid rgba(255,255,255,.3)}
+.container{max-width:1100px;margin:0 auto;padding:28px 20px}
+.tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.tab-btn{padding:9px 18px;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#718096;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.tab-btn:hover{border-color:#4299e1;color:#4299e1}
+.tab-btn.active{background:#4299e1;border-color:#4299e1;color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card h2{font-size:17px;font-weight:700;color:#2d3748;margin-bottom:6px}
+.card p{color:#718096;font-size:13px;margin-bottom:16px}
+pre{background:#1a202c;border-radius:8px;padding:14px;font-size:12px;color:#e2e8f0;overflow-x:auto;white-space:pre-wrap;line-height:1.7;font-family:monospace;margin-bottom:14px}
+.kw{color:#fc8181}.fn{color:#b794f4}.str{color:#76e4f7}.num{color:#90cdf4}.cmt{color:#4a5568}
+input{border:1.5px solid #e2e8f0;padding:9px 14px;border-radius:8px;font-size:14px;color:#2d3748;outline:none;transition:border .2s}
+input:focus{border-color:#4299e1}
+.btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:all .2s}
+.btn-blue{background:#4299e1;color:#fff}.btn-blue:hover{background:#3182ce}
+.btn-green{background:#48bb78;color:#fff}.btn-green:hover{background:#38a169}
+.btn-red{background:#fc8181;color:#1a1a2e}.btn-red:hover{background:#f56565;color:#fff}
+.result-box{background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;font-family:monospace;font-size:13px;min-height:50px;margin-top:12px}
+.ok{color:#276749}.err{color:#c53030}.info{color:#2b6cb0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+/* Завдання 4 — TodoList */
+.todo-wrap{max-width:500px}
+.todo-input-row{display:flex;gap:8px;margin-bottom:16px}
+.todo-input-row input{flex:1}
+#taskList{list-style:none;padding:0}
+#taskList li{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .2s;font-size:14px}
+#taskList li:hover{border-color:#4299e1}
+#taskList li.done{background:#f0fff4;border-color:#68d391}
+#taskList li.done .task-text{text-decoration:line-through;color:#718096}
+.task-text{flex:1}
+.del-btn{background:none;border:none;color:#cbd5e0;cursor:pointer;font-size:16px;padding:0 4px;transition:color .2s}
+.del-btn:hover{color:#f56565}
+.stats-row{display:flex;gap:12px;margin-bottom:14px;font-size:13px;color:#718096}
+.stats-row strong{color:#2d3748}
+/* Тести */
+.test-table{width:100%;border-collapse:collapse}
+.test-table th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#718096;text-transform:uppercase;border-bottom:2px solid #e2e8f0}
+.test-table td{padding:10px 12px;border-bottom:1px solid #edf2f7;font-size:13px}
+.test-table tr:last-child td{border-bottom:none}
+.ans{display:inline-block;padding:2px 8px;border-radius:4px;font-weight:700;font-size:12px;background:#c6f6d5;color:#276749}
+/* Loading */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #e2e8f0;border-top-color:#4299e1;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Answers expanded styles */
+.q-header{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;cursor:pointer;transition:background .2s}
+.q-header:hover{background:#f7fafc}
+.q-num-circle{background:#4299e1;color:#fff;font-size:13px;font-weight:800;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.q-title-wrap{flex:1}
+.q-topic{font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.q-text{font-size:15px;font-weight:600;color:#2d3748}
+.q-ans-line{display:flex;align-items:center;gap:8px;margin-top:6px}
+.ans-badge-big{background:#c6f6d5;color:#276749;font-weight:800;font-size:13px;padding:3px 10px;border-radius:6px}
+.q-arrow{color:#cbd5e0;font-size:18px;flex-shrink:0;transition:transform .3s;align-self:center}
+.q-body{display:none;padding:0 22px 20px 68px;border-top:1px solid #edf2f7}
+.q-body.open{display:block}
+.q-explain-text{color:#4a5568;font-size:14px;margin-bottom:12px;padding-top:14px}
+.options-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.option-item{padding:8px 14px;border-radius:7px;border:1.5px solid #e2e8f0;font-size:13px;color:#4a5568}
+.option-item.correct{background:#c6f6d5;border-color:#68d391;color:#276749;font-weight:700}
+.option-item.wrong{background:#fed7d7;border-color:#fc8181;color:#c53030;text-decoration:line-through;opacity:.7}
+.ans-summary-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin-bottom:20px}
+.ans-sum-cell{text-align:center;background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 4px}
+.ans-sum-num{font-size:11px;color:#718096;margin-bottom:3px}
+.ans-sum-letter{font-size:18px;font-weight:800;color:#276749;background:#c6f6d5;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 Підсумкова модульна робота — JavaScript</h1>
+  <span class="tag">40 балів · Теми 1–11</span>
+</header>
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('answers',this)">📝 Тестові відповіді</button>
+    <button class="tab-btn" onclick="switchTab('task1',this)">Завд. 1 — Числа</button>
+    <button class="tab-btn" onclick="switchTab('task2',this)">Завд. 2 — Товари</button>
+    <button class="tab-btn" onclick="switchTab('task3',this)">Завд. 3 — API Client</button>
+    <button class="tab-btn" onclick="switchTab('task4',this)">Завд. 4 — TodoList</button>
+  </div>
+
+  <!-- ТЕСТОВІ ВІДПОВІДІ -->
+  <div id="tab-answers" class="tab-content active">
+    <div class="card">
+      <h2>Частина 1 — Тестові питання (20 балів)</h2>
+      <p style="margin-bottom:16px">20 питань × 1 бал = 20 балів · Натисни на питання щоб розгорнути</p>
+      <div class="ans-summary-grid" id="ans-summary-grid"></div>
+      <div id="questions-list"></div>
+    </div>
+  </div>
+
+  <!-- ЗАВДАННЯ 1 -->
+  <div id="tab-task1" class="tab-content">
+    <div class="card">
+      <h2>Завдання 1 — summarizeNumbers()</h2>
+      <p>Приймає масив чисел, повертає статистику. Цикл for без HOF.</p>
+      <pre><span class="kw">function</span> <span class="fn">summarizeNumbers</span>(numbers) {
+  <span class="kw">if</span> (!numbers.length) <span class="kw">return</span> { count:<span class="num">0</span>, sum:<span class="num">0</span>, evenCount:<span class="num">0</span>, max:<span class="kw">undefined</span>, category:<span class="str">'empty'</span> };
+
+  <span class="kw">let</span> sum=<span class="num">0</span>, evenCount=<span class="num">0</span>, max=numbers[<span class="num">0</span>];
+
+  <span class="kw">for</span> (<span class="kw">let</span> i=<span class="num">0</span>; i &lt; numbers.length; i++) {
+    sum += numbers[i];
+    <span class="kw">if</span> (numbers[i] % <span class="num">2</span> === <span class="num">0</span>) evenCount++;
+    <span class="kw">if</span> (numbers[i] > max) max = numbers[i];
+  }
+
+  <span class="kw">return</span> { count: numbers.length, sum, evenCount, max,
+    category: sum > <span class="num">0</span> ? <span class="str">'positive'</span> : <span class="str">'non-positive'</span> };
+}</pre>
+      <div class="controls" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="t1-input" value="4, 7, 2, 9" style="width:240px" placeholder="числа через кому">
+        <button class="btn btn-blue" onclick="runTask1()">▶ Виконати</button>
+        <button class="btn btn-red" onclick="document.getElementById('t1-input').value='';document.getElementById('t1-out').innerHTML=''">Скинути</button>
+      </div>
+      <div class="result-box" id="t1-out"></div>
+    </div>
+  </div>
+
+  <!-- ЗАВДАННЯ 2 -->
+  <div id="tab-task2" class="tab-content">
+    <div class="card">
+      <h2>Завдання 2 — processProducts()</h2>
+      <p>Масив товарів → filter, reduce, map.</p>
+      <pre><span class="kw">function</span> <span class="fn">processProducts</span>(products) {
+  <span class="kw">const</span> inStock   = products.<span class="fn">filter</span>(p => p.inStock);
+  <span class="kw">const</span> available = inStock.<span class="fn">map</span>(p => p.name);
+  <span class="kw">const</span> totalPrice = inStock.<span class="fn">reduce</span>((s,p) => s+p.price, <span class="num">0</span>);
+  <span class="kw">const</span> cheapest  = inStock.<span class="fn">reduce</span>((m,p) => p.price &lt; m.price ? p : m)?.name;
+  <span class="kw">const</span> priceList = products.<span class="fn">map</span>(p => <span class="str">`${p.name} — ${p.price} грн`</span>);
+  <span class="kw">return</span> { available, totalPrice, cheapest, priceList };
+}</pre>
+      <div id="t2-products" style="margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="btn btn-blue" onclick="runTask2()">▶ Виконати</button>
+        <button class="btn btn-green" onclick="addProduct()">➕ Додати товар</button>
+        <button class="btn btn-red" onclick="resetProducts()">Скинути</button>
+      </div>
+      <div class="result-box" id="t2-out"></div>
+    </div>
+  </div>
+
+  <!-- ЗАВДАННЯ 3 -->
+  <div id="tab-task3" class="tab-content">
+    <div class="card">
+      <h2>Завдання 3 — createApiClient()</h2>
+      <p>Замикання + async/await + fetch. Реальні запити до jsonplaceholder.typicode.com</p>
+      <pre><span class="kw">function</span> <span class="fn">createApiClient</span>(baseUrl) {
+  <span class="kw">let</span> requestCount = <span class="num">0</span>; <span class="cmt">// приватний лічильник у замиканні</span>
+
+  <span class="kw">return</span> {
+    <span class="kw">async</span> <span class="fn">get</span>(path) {
+      requestCount++;
+      <span class="kw">try</span> {
+        <span class="kw">const</span> response = <span class="kw">await</span> <span class="fn">fetch</span>(baseUrl + path);
+        <span class="kw">if</span> (!response.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(`HTTP ${response.status}`);
+        <span class="kw">return await</span> response.<span class="fn">json</span>();
+      } <span class="kw">catch</span> {
+        <span class="kw">return</span> { error: <span class="str">'Запит не вдався'</span> };
+      }
+    },
+    <span class="fn">getRequestCount</span>() { <span class="kw">return</span> requestCount; }
+  };
+}</pre>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <input id="t3-path" value="/users/1" style="width:180px" placeholder="/users/1">
+        <button class="btn btn-blue" onclick="runTask3()">▶ api.get(path)</button>
+        <button class="btn btn-green" onclick="runTask3All()">▶ Паралельно (Promise.all)</button>
+      </div>
+      <div class="result-box" id="t3-out"><span style="color:#718096">← Введи path і натисни ▶</span></div>
+    </div>
+  </div>
+
+  <!-- ЗАВДАННЯ 4 -->
+  <div id="tab-task4" class="tab-content">
+    <div class="card">
+      <h2>Завдання 4 — Task + TodoList + DOM</h2>
+      <p>Класи, ООП, делегування подій.</p>
+      <pre style="margin-bottom:16px"><span class="kw">class</span> <span class="fn">Task</span> {
+  <span class="fn">constructor</span>(id, text) { <span class="kw">this</span>.id=id; <span class="kw">this</span>.text=text; <span class="kw">this</span>.done=<span class="kw">false</span>; }
+  <span class="fn">toggle</span>() { <span class="kw">this</span>.done = !<span class="kw">this</span>.done; }
+}
+<span class="kw">class</span> <span class="fn">TodoList</span> {
+  #tasks=[]; #nextId=<span class="num">1</span>;
+  <span class="fn">add</span>(text)    { <span class="kw">const</span> t=<span class="kw">new</span> <span class="fn">Task</span>(<span class="kw">this</span>.#nextId++, text); <span class="kw">this</span>.#tasks.<span class="fn">push</span>(t); <span class="kw">return</span> t; }
+  <span class="fn">remove</span>(id)   { <span class="kw">this</span>.#tasks = <span class="kw">this</span>.#tasks.<span class="fn">filter</span>(t => t.id !== id); }
+  <span class="fn">getActive</span>()  { <span class="kw">return this</span>.#tasks.<span class="fn">filter</span>(t => !t.done); }
+  <span class="fn">getAll</span>()     { <span class="kw">return</span> [...<span class="kw">this</span>.#tasks]; }
+  <span class="fn">findById</span>(id) { <span class="kw">return this</span>.#tasks.<span class="fn">find</span>(t => t.id===id); }
+}</pre>
+      <div class="todo-wrap">
+        <div class="todo-input-row">
+          <input id="taskInput" placeholder="Нове завдання...">
+          <button id="addBtn" class="btn btn-blue">Додати</button>
+        </div>
+        <div class="stats-row" id="todo-stats"></div>
+        <ul id="taskList"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Навігація ────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── Тестові відповіді (розширені) ──────────────────────────
+const QDATA = [
+  {n:1,topic:"Змінні та типи даних",ans:"B",text:"Яке твердження про const є правильним?",
+   options:[{l:"A",t:"Змінну const можна перезаписати в будь-який момент"},{l:"B",t:"Змінну const не можна повторно присвоїти, але об'єкт за посиланням можна мутувати"},{l:"C",t:"const створює лише числові константи"},{l:"D",t:"const має функціональну область видимості"}],
+   explain:"<code>const</code> забороняє лише повторне присвоєння, але не забороняє зміну властивостей об'єкта.",
+   code:`const user = { name: "Іван" };
+user.name = "Марія"; // ✅ можна
+user = {};           // ❌ TypeError`},
+  {n:2,topic:"Змінні та типи даних",ans:"C",text:"Скільки існує примітивних типів даних у JavaScript?",
+   options:[{l:"A",t:"3"},{l:"B",t:"5"},{l:"C",t:"7"},{l:"D",t:"Тільки object"}],
+   explain:"7 примітивів: string, number, bigint, boolean, undefined, null, symbol.",
+   code:`typeof "hello"    // "string"
+typeof 42         // "number"
+typeof 9007n      // "bigint"
+typeof true       // "boolean"
+typeof undefined  // "undefined"
+typeof null       // "object" ← помилка JS, але null — примітив
+typeof Symbol()   // "symbol"`},
+  {n:3,topic:"Умовні оператори",ans:"B",text:'Що поверне вираз "" || "default"?',
+   options:[{l:"A",t:'""'},{l:"B",t:'"default"'},{l:"C",t:"true"},{l:"D",t:"undefined"}],
+   explain:'<code>||</code> повертає перше truthy. Порожній рядок <code>""</code> — falsy, тому повертається <code>"default"</code>.',
+   code:`"" || "default"       // "default"
+"привіт" || "default" // "привіт"`},
+  {n:4,topic:"Умовні оператори",ans:"A",text:"Який результат матиме вираз 0 == false?",
+   options:[{l:"A",t:"true"},{l:"B",t:"false"},{l:"C",t:"undefined"},{l:"D",t:"TypeError"}],
+   explain:"<code>==</code> виконує приведення типів: false → 0, тому 0 == 0 → true. Краще використовувати <code>===</code>.",
+   code:`0 == false   // true  (false→0, 0==0)
+0 === false  // false (різні типи)`},
+  {n:5,topic:"Цикли",ans:"B",text:"Який цикл найкраще підходить для перебору значень масиву без використання індексів?",
+   options:[{l:"A",t:"for...in"},{l:"B",t:"for...of"},{l:"C",t:"while"},{l:"D",t:"do...while"}],
+   explain:"<code>for...of</code> перебирає значення. <code>for...in</code> перебирає ключі — не підходить для масивів.",
+   code:`for (const value of [10,20,30]) {
+  console.log(value); // 10, 20, 30
+}`},
+  {n:6,topic:"Цикли",ans:"B",text:"Що зробить оператор continue всередині циклу?",
+   options:[{l:"A",t:"Повністю завершить цикл"},{l:"B",t:"Перейде до наступної ітерації, пропустивши решту коду в поточній"},{l:"C",t:"Перезапустить цикл з початку"},{l:"D",t:"Викличе помилку"}],
+   explain:"<code>continue</code> пропускає решту поточної ітерації. <code>break</code> — зупиняє цикл повністю.",
+   code:`for (let i=0; i<5; i++) {
+  if (i===2) continue;
+  console.log(i); // 0,1,3,4
+}`},
+  {n:7,topic:"Функції",ans:"B",text:"Чим arrow function відрізняється від звичайної функції щодо this?",
+   options:[{l:"A",t:"Arrow function створює власний this"},{l:"B",t:"Arrow function не має власного this і бере його з зовнішнього контексту"},{l:"C",t:"Різниці немає"},{l:"D",t:"Arrow function забороняє використання this"}],
+   explain:"Arrow function має lexical this — бере <code>this</code> з того scope де була оголошена.",
+   code:`class Timer {
+  start() {
+    setTimeout(function() { console.log(this); }, 0); // undefined
+    setTimeout(() => { console.log(this); }, 0);    // Timer ✅
+  }
+}`},
+  {n:8,topic:"Функції",ans:"B",text:"Що означає синтаксис function sum(...numbers)?",
+   options:[{l:"A",t:"Функція приймає рівно один аргумент-масив"},{l:"B",t:"numbers збере всі передані аргументи у масив (rest parameters)"},{l:"C",t:"Функція не приймає аргументів"},{l:"D",t:"Це синтаксична помилка"}],
+   explain:"<code>...numbers</code> — rest parameters, збирає всі аргументи у масив.",
+   code:`function sum(...numbers) {
+  return numbers.reduce((a,b) => a+b, 0);
+}
+sum(1,2,3,4); // numbers=[1,2,3,4] → 10`},
+  {n:9,topic:"Об'єкти",ans:"C",text:"Що повертає Object.entries({ a: 1, b: 2 })?",
+   options:[{l:"A",t:'["a","b"]'},{l:"B",t:"[1,2]"},{l:"C",t:'[["a",1],["b",2]]'},{l:"D",t:"{ a:1, b:2 }"}],
+   explain:"<code>Object.entries()</code> повертає масив пар [ключ, значення].",
+   code:`Object.keys({a:1,b:2})    // ["a","b"]
+Object.values({a:1,b:2})  // [1,2]
+Object.entries({a:1,b:2}) // [["a",1],["b",2]]`},
+  {n:10,topic:"Об'єкти",ans:"B",text:"Як за допомогою spread-оператора об'єднати об'єкти obj1 та obj2?",
+   options:[{l:"A",t:"{ obj1, obj2 }"},{l:"B",t:"{ ...obj1, ...obj2 }"},{l:"C",t:"[...obj1, ...obj2]"},{l:"D",t:"obj1 + obj2"}],
+   explain:"Spread для об'єктів <code>{ ...obj }</code> копіює всі власні властивості. При однакових ключах перемагає правий.",
+   code:`const merged = { ...{a:1,b:2}, ...{b:3,c:4} };
+// { a:1, b:3, c:4 }`},
+  {n:11,topic:"Події та DOM",ans:"B",text:"Що таке делегування подій?",
+   options:[{l:"A",t:"Видалення обробника після першого спрацювання"},{l:"B",t:"Встановлення одного обробника на батьківський елемент замість обробників на кожному дочірньому"},{l:"C",t:"Заборона стандартної поведінки браузера"},{l:"D",t:"Створення нової події вручну"}],
+   explain:"Один обробник на батьківський елемент — використовує event bubbling. Менше пам'яті, працює для динамічних елементів.",
+   code:`ul.addEventListener('click', (e) => {
+  if (e.target.closest('li')) {
+    console.log(e.target.textContent);
+  }
+});`},
+  {n:12,topic:"DOM",ans:"A",text:"Який метод створює новий DOM-елемент?",
+   options:[{l:"A",t:"document.createElement()"},{l:"B",t:"document.newElement()"},{l:"C",t:"document.appendChild()"},{l:"D",t:"document.querySelector()"}],
+   explain:"<code>createElement()</code> створює елемент у пам'яті. Щоб з'явився на сторінці — потрібно додати через <code>append()</code>.",
+   code:`const li = document.createElement('li');
+li.textContent = 'Новий елемент';
+document.querySelector('ul').append(li);`},
+  {n:13,topic:"Масиви",ans:"B",text:"Що поверне [1, 2, 3, 4].slice(1, 3)?",
+   options:[{l:"A",t:"[1,2]"},{l:"B",t:"[2,3]"},{l:"C",t:"[2,3,4]"},{l:"D",t:"[1,2,3]"}],
+   explain:"<code>slice(start, end)</code> — від індексу start до end (не включаючи end). Не змінює оригінал.",
+   code:`[1,2,3,4].slice(1,3) // [2,3] (індекси 1 і 2)
+[1,2,3,4].slice(2)   // [3,4]
+[1,2,3,4].slice(-2)  // [3,4]`},
+  {n:14,topic:"Масиви",ans:"B",text:"Який метод видаляє останній елемент масиву і повертає його?",
+   options:[{l:"A",t:"shift()"},{l:"B",t:"pop()"},{l:"C",t:"slice()"},{l:"D",t:"splice()"}],
+   explain:"<code>pop()</code> видаляє і повертає останній елемент. <code>shift()</code> — перший.",
+   code:`const arr = [1,2,3];
+arr.pop();    // повертає 3, arr=[1,2]
+arr.shift();  // повертає 1, arr=[2]`},
+  {n:15,topic:"Функції вищого порядку",ans:"B",text:"Що поверне [1, 2, 3, 4].filter(n => n % 2 === 0)?",
+   options:[{l:"A",t:"[1,3]"},{l:"B",t:"[2,4]"},{l:"C",t:"6"},{l:"D",t:"true"}],
+   explain:"<code>filter()</code> повертає елементи для яких callback → true. <code>n%2===0</code> — перевірка на парність.",
+   code:`[1,2,3,4].filter(n => n%2===0) // [2,4]`},
+  {n:16,topic:"Функції вищого порядку",ans:"C",text:"Який метод зводить масив до одного значення?",
+   options:[{l:"A",t:"map()"},{l:"B",t:"forEach()"},{l:"C",t:"reduce()"},{l:"D",t:"find()"}],
+   explain:"<code>reduce(callback, initial)</code> накопичує результат проходячи по масиву.",
+   code:`[1,2,3,4].reduce((acc,n) => acc+n, 0)
+// 0+1+2+3+4 = 10`},
+  {n:17,topic:"Замикання",ans:"B",text:"Яке практичне застосування замикань (closures)?",
+   options:[{l:"A",t:"Прискорення циклів"},{l:"B",t:"Створення приватних змінних та інкапсуляція стану"},{l:"C",t:"Заміна класів"},{l:"D",t:"Сортування масивів"}],
+   explain:"Замикання дозволяє функції пам'ятати змінні зовнішнього scope — головне застосування: приватні змінні.",
+   code:`function createCounter() {
+  let count = 0; // приватна
+  return { get: () => count, inc: () => ++count };
+}
+const c = createCounter();
+c.count; // undefined — захищено!`},
+  {n:18,topic:"Проміси та async/await",ans:"B",text:"Що повертає функція, оголошена з ключовим словом async?",
+   options:[{l:"A",t:"Звичайне значення"},{l:"B",t:"Promise"},{l:"C",t:"undefined"},{l:"D",t:"Callback"}],
+   explain:"<code>async</code> функція завжди повертає Promise, навіть якщо return повертає звичайне значення.",
+   code:`async function greet() { return "Привіт"; }
+greet();           // Promise { "Привіт" }
+await greet();     // "Привіт"`},
+  {n:19,topic:"Проміси та async/await",ans:"B",text:"Для чого використовується Promise.all([...])?",
+   options:[{l:"A",t:"Виконує проміси послідовно"},{l:"B",t:"Чекає завершення всіх промісів і повертає масив їхніх результатів"},{l:"C",t:"Повертає результат першого завершеного"},{l:"D",t:"Скасовує всі проміси"}],
+   explain:"<code>Promise.all</code> запускає всі паралельно і чекає поки всі завершаться. Якщо один впаде — весь відхиляється.",
+   code:`const [users,posts] = await Promise.all([
+  fetch('/users').then(r=>r.json()),
+  fetch('/posts').then(r=>r.json()),
+]);`},
+  {n:20,topic:"Класи та ООП",ans:"B",text:"Що робить ключове слово super у конструкторі дочірнього класу?",
+   options:[{l:"A",t:"Створює статичний метод"},{l:"B",t:"Викликає конструктор батьківського класу"},{l:"C",t:"Робить поле приватним"},{l:"D",t:"Видаляє батьківський клас"}],
+   explain:"<code>super()</code> обов'язково викликати перед <code>this</code> у дочірньому конструкторі.",
+   code:`class Car extends Vehicle {
+  constructor(brand, doors) {
+    super(brand); // ← Vehicle constructor
+    this.doors = doors;
+  }
+}`},
+];
+
+// Зведена таблиця
+document.getElementById('ans-summary-grid').innerHTML = QDATA.map(q =>
+  `<div class="ans-sum-cell">
+    <div class="ans-sum-num">${q.n}</div>
+    <div class="ans-sum-letter">${q.ans}</div>
+  </div>`
+).join('');
+
+// Розгортальні питання
+document.getElementById('questions-list').innerHTML = QDATA.map(q => `
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;overflow:hidden">
+    <div class="q-header" onclick="toggleQ(${q.n})">
+      <div class="q-num-circle">${q.n}</div>
+      <div class="q-title-wrap">
+        <div class="q-topic">${q.topic}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-ans-line"><span class="ans-badge-big">Відповідь: ${q.ans}</span></div>
+      </div>
+      <div class="q-arrow" id="qarrow-${q.n}">▼</div>
+    </div>
+    <div class="q-body" id="qbody-${q.n}">
+      <div class="q-explain-text">${q.explain}</div>
+      <div class="options-list">
+        ${q.options.map(o=>`<div class="option-item ${o.l===q.ans?'correct':'wrong'}"><strong>${o.l})</strong> ${o.t}</div>`).join('')}
+      </div>
+      ${q.code ? `<pre style="background:#1a202c;border-radius:8px;padding:14px;font-size:12px;color:#e2e8f0;overflow-x:auto;white-space:pre-wrap;line-height:1.7;font-family:monospace;margin-top:12px">${q.code}</pre>` : ''}
+    </div>
+  </div>
+`).join('');
+
+function toggleQ(n) {
+  const body  = document.getElementById('qbody-'+n);
+  const arrow = document.getElementById('qarrow-'+n);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+
+// ── Завдання 1 ───────────────────────────────────────────────
+function summarizeNumbers(numbers) {
+  if (!Array.isArray(numbers) || numbers.length === 0)
+    return { count:0, sum:0, evenCount:0, max:undefined, category:'empty' };
+  let sum=0, evenCount=0, max=numbers[0];
+  for (let i=0; i<numbers.length; i++) {
+    sum += numbers[i];
+    if (numbers[i] % 2 === 0) evenCount++;
+    if (numbers[i] > max) max = numbers[i];
+  }
+  return { count:numbers.length, sum, evenCount, max, category: sum>0?'positive':'non-positive' };
+}
+
+function runTask1() {
+  const raw = document.getElementById('t1-input').value;
+  const arr = raw.split(',').map(x => parseFloat(x.trim())).filter(n => !isNaN(n));
+  const result = summarizeNumbers(arr);
+  const el = document.getElementById('t1-out');
+  el.innerHTML =
+    `<div class="info">Вхід: [${arr.join(', ')}]</div>` +
+    `<div class="ok" style="margin-top:8px">Результат: ${JSON.stringify(result, null, 2)
+      .replace(/\n/g,'<br>').replace(/ /g,'&nbsp;')}</div>`;
+}
+
+// ── Завдання 2 ───────────────────────────────────────────────
+let products = [
+  { name:'Чай',   price:50,  inStock:true  },
+  { name:'Кава',  price:120, inStock:false },
+  { name:'Цукор', price:30,  inStock:true  },
+];
+
+function processProducts(products) {
+  if (!products.length) return { available:[], totalPrice:0, cheapest:null, priceList:[] };
+  const inStock    = products.filter(p => p.inStock);
+  const available  = inStock.map(p => p.name);
+  const totalPrice = inStock.reduce((s,p) => s+p.price, 0);
+  const cheapest   = inStock.length ? inStock.reduce((m,p) => p.price<m.price?p:m).name : null;
+  const priceList  = products.map(p => `${p.name} — ${p.price} грн`);
+  return { available, totalPrice, cheapest, priceList };
+}
+
+function renderProducts() {
+  document.getElementById('t2-products').innerHTML =
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    products.map((p,i) =>
+      `<div style="background:${p.inStock?'#c6f6d5':'#fed7d7'};border-radius:6px;padding:6px 12px;font-size:12px">
+        ${p.name} — ${p.price}₴ ${p.inStock?'✅':'❌'}
+        <button onclick="removeProduct(${i})" style="background:none;border:none;cursor:pointer;color:#718096;margin-left:4px">✕</button>
+      </div>`
+    ).join('') + '</div>';
+}
+
+function addProduct() {
+  const names = ['Молоко','Хліб','Масло','Сир','Мед','Джем','Вода'];
+  const name  = names[Math.floor(Math.random()*names.length)] + Math.floor(Math.random()*9+1);
+  products.push({ name, price:Math.floor(Math.random()*200)+10, inStock:Math.random()>0.4 });
+  renderProducts();
+}
+
+function removeProduct(i) { products.splice(i,1); renderProducts(); }
+
+function resetProducts() {
+  products = [
+    { name:'Чай', price:50, inStock:true },
+    { name:'Кава', price:120, inStock:false },
+    { name:'Цукор', price:30, inStock:true },
+  ];
+  renderProducts();
+  document.getElementById('t2-out').innerHTML = '';
+}
+
+function runTask2() {
+  const result = processProducts(products);
+  document.getElementById('t2-out').innerHTML =
+    `<div class="ok">available: [${result.available.join(', ')}]</div>
+     <div class="ok">totalPrice: ${result.totalPrice} грн</div>
+     <div class="ok">cheapest: "${result.cheapest}"</div>
+     <div class="ok">priceList:<br>${result.priceList.map(s=>'  '+s).join('<br>')}</div>`;
+}
+
+renderProducts();
+
+// ── Завдання 3 ───────────────────────────────────────────────
+function createApiClient(baseUrl) {
+  let requestCount = 0;
+  return {
+    async get(path) {
+      requestCount++;
+      try {
+        const response = await fetch(baseUrl + path);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+      } catch {
+        return { error: 'Запит не вдався' };
+      }
+    },
+    getRequestCount() { return requestCount; }
+  };
+}
+
+const apiClient = createApiClient('https://jsonplaceholder.typicode.com');
+
+async function runTask3() {
+  const path = document.getElementById('t3-path').value || '/users/1';
+  const el = document.getElementById('t3-out');
+  el.innerHTML = '<span class="spinner"></span>Завантаження...';
+  const data = await apiClient.get(path);
+  el.innerHTML =
+    `<div class="info">GET ${path} — Запит №${apiClient.getRequestCount()}</div>` +
+    `<div class="ok" style="margin-top:8px;white-space:pre-wrap">${JSON.stringify(data, null, 2).slice(0,500)}${JSON.stringify(data).length>500?'\n...':''}` +
+    `</div>`;
+}
+
+async function runTask3All() {
+  const el = document.getElementById('t3-out');
+  el.innerHTML = '<span class="spinner"></span>Promise.all — паралельно...';
+  const [user, post, comment] = await Promise.all([
+    apiClient.get('/users/1'),
+    apiClient.get('/posts/1'),
+    apiClient.get('/comments/1'),
+  ]);
+  el.innerHTML =
+    `<div class="info">Promise.all — 3 запити паралельно. Всього запитів: ${apiClient.getRequestCount()}</div>` +
+    `<div class="ok" style="margin-top:6px">👤 User: ${user.name}</div>` +
+    `<div class="ok">📝 Post: "${post.title}"</div>` +
+    `<div class="ok">💬 Comment: "${comment.name}"</div>`;
+}
+
+// ── Завдання 4 ───────────────────────────────────────────────
+class Task {
+  constructor(id, text) { this.id=id; this.text=text; this.done=false; }
+  toggle() { this.done = !this.done; }
+}
+
+class TodoList {
+  #tasks=[]; #nextId=1;
+  add(text) {
+    if (!text.trim()) throw new Error('Текст не може бути порожнім');
+    const t = new Task(this.#nextId++, text.trim());
+    this.#tasks.push(t);
+    return t;
+  }
+  remove(id)   { this.#tasks = this.#tasks.filter(t => t.id !== id); }
+  getActive()  { return this.#tasks.filter(t => !t.done); }
+  getAll()     { return [...this.#tasks]; }
+  findById(id) { return this.#tasks.find(t => t.id === id); }
+}
+
+const todoList = new TodoList();
+
+function renderTodo() {
+  const all    = todoList.getAll();
+  const active = todoList.getActive().length;
+  document.getElementById('todo-stats').innerHTML =
+    `Всього: <strong>${all.length}</strong> &nbsp;|&nbsp; Активних: <strong>${active}</strong> &nbsp;|&nbsp; Виконано: <strong>${all.length-active}</strong>`;
+
+  document.getElementById('taskList').innerHTML = all.map(t =>
+    `<li class="${t.done?'done':''}" data-id="${t.id}">
+      <span class="task-text">${t.done?'✅':'⬜'} ${t.text}</span>
+      <button class="del-btn" data-del="${t.id}" title="Видалити">✕</button>
+    </li>`
+  ).join('') || '<li style="color:#718096;cursor:default;border:none;background:none">Список порожній</li>';
+}
+
+// Делегування подій на ul
+document.getElementById('taskList').addEventListener('click', function(e) {
+  const delBtn = e.target.closest('[data-del]');
+  const li     = e.target.closest('li[data-id]');
+  if (delBtn) {
+    todoList.remove(parseInt(delBtn.dataset.del));
+    renderTodo();
+    return;
+  }
+  if (li) {
+    const task = todoList.findById(parseInt(li.dataset.id));
+    if (task) { task.toggle(); renderTodo(); }
+  }
+});
+
+document.getElementById('addBtn').addEventListener('click', function() {
+  const input = document.getElementById('taskInput');
+  try {
+    todoList.add(input.value);
+    input.value = '';
+    renderTodo();
+  } catch(e) { alert(e.message); }
+});
+
+document.getElementById('taskInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('addBtn').click();
+});
+
+// Дефолтні завдання
+['Вивчити JavaScript', 'Зробити практичну роботу', 'Здати модульну'].forEach(t => todoList.add(t));
+todoList.findById(1).toggle();
+renderTodo();
+</script>
+</body>
+</html>

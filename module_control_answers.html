@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Відповіді на тестові питання — JavaScript</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e;font-size:15px;line-height:1.6}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:20px 40px;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:22px}
+header p{color:rgba(255,255,255,.6);font-size:13px;margin-top:4px}
+.tag{background:rgba(255,255,255,.15);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;border:1px solid rgba(255,255,255,.3);white-space:nowrap}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+.summary-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px 24px;margin-bottom:28px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.summary-card h2{font-size:16px;font-weight:700;color:#2d3748;margin-bottom:14px}
+.ans-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.ans-cell{text-align:center;background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 4px}
+.ans-num{font-size:11px;color:#718096;margin-bottom:3px}
+.ans-letter{font-size:18px;font-weight:800;color:#276749;background:#c6f6d5;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.question{background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden}
+.q-header{display:flex;align-items:flex-start;gap:14px;padding:18px 22px;cursor:pointer;transition:background .2s}
+.q-header:hover{background:#f7fafc}
+.q-num{background:#4299e1;color:#fff;font-size:13px;font-weight:800;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.q-title-wrap{flex:1}
+.q-topic{font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.q-text{font-size:15px;font-weight:600;color:#2d3748}
+.q-ans{display:flex;align-items:center;gap:8px;margin-top:6px}
+.ans-badge{background:#c6f6d5;color:#276749;font-weight:800;font-size:13px;padding:3px 10px;border-radius:6px}
+.q-arrow{color:#cbd5e0;font-size:18px;flex-shrink:0;transition:transform .3s;align-self:center}
+.q-body{display:none;padding:0 22px 20px 68px;border-top:1px solid #edf2f7}
+.q-body.open{display:block}
+.q-explain{color:#4a5568;font-size:14px;margin-bottom:12px;padding-top:14px}
+pre{background:#1a202c;border-radius:8px;padding:14px;font-size:12px;color:#e2e8f0;overflow-x:auto;white-space:pre-wrap;line-height:1.7;font-family:monospace;margin:10px 0}
+.kw{color:#fc8181}.fn{color:#b794f4}.str{color:#76e4f7}.num{color:#90cdf4}.cmt{color:#718096}
+.options{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.option{padding:8px 14px;border-radius:7px;border:1.5px solid #e2e8f0;font-size:13px;color:#4a5568}
+.option.correct{background:#c6f6d5;border-color:#68d391;color:#276749;font-weight:700}
+.option.wrong{background:#fed7d7;border-color:#fc8181;color:#c53030;text-decoration:line-through;opacity:.7}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>📋 Відповіді на тестові питання</h1>
+    <p>Підсумкова модульна робота · JavaScript · Теми 1–11</p>
+  </div>
+  <span class="tag">20 балів</span>
+</header>
+
+<div class="container">
+
+  <!-- Зведена таблиця -->
+  <div class="summary-card">
+    <h2>Зведена таблиця відповідей</h2>
+    <div class="ans-grid" id="ans-grid"></div>
+  </div>
+
+  <!-- Питання -->
+  <div id="questions"></div>
+
+</div>
+
+<script>
+const data = [
+  {
+    n:1, topic:"Змінні та типи даних", ans:"B",
+    text:"Яке твердження про const є правильним?",
+    options:[
+      {l:"A", t:"Змінну const можна перезаписати в будь-який момент"},
+      {l:"B", t:"Змінну const не можна повторно присвоїти, але об'єкт за посиланням можна мутувати"},
+      {l:"C", t:"const створює лише числові константи"},
+      {l:"D", t:"const має функціональну область видимості"},
+    ],
+    explain:`<code>const</code> забороняє лише повторне присвоєння (<code>=</code>), але не забороняє зміну властивостей об'єкта або елементів масиву.`,
+    code:`<span class="kw">const</span> user = { name: <span class="str">"Іван"</span> };
+user.name = <span class="str">"Марія"</span>; <span class="cmt">// ✅ можна — мутуємо об'єкт</span>
+user = {};           <span class="cmt">// ❌ TypeError — перезапис посилання</span>
+
+<span class="cmt">// const має БЛОКОВУ область видимості, а не функціональну</span>`,
+  },
+  {
+    n:2, topic:"Змінні та типи даних", ans:"C",
+    text:"Скільки існує примітивних типів даних у JavaScript?",
+    options:[
+      {l:"A", t:"3"},{l:"B", t:"5"},{l:"C", t:"7"},{l:"D", t:"Тільки object"},
+    ],
+    explain:`У JavaScript рівно <strong>7 примітивних типів</strong>. Всі інші (масиви, функції, об'єкти) є об'єктами.`,
+    code:`<span class="cmt">// 7 примітивних типів:</span>
+<span class="kw">typeof</span> <span class="str">"hello"</span>    <span class="cmt">// "string"</span>
+<span class="kw">typeof</span> <span class="num">42</span>        <span class="cmt">// "number"</span>
+<span class="kw">typeof</span> <span class="num">9007n</span>     <span class="cmt">// "bigint"</span>
+<span class="kw">typeof</span> <span class="kw">true</span>      <span class="cmt">// "boolean"</span>
+<span class="kw">typeof</span> <span class="kw">undefined</span> <span class="cmt">// "undefined"</span>
+<span class="kw">typeof</span> <span class="kw">null</span>      <span class="cmt">// "object" ← відома помилка JS, але null є примітивом</span>
+<span class="kw">typeof</span> <span class="fn">Symbol</span>()  <span class="cmt">// "symbol"</span>`,
+  },
+  {
+    n:3, topic:"Умовні оператори", ans:"B",
+    text:'Що поверне вираз "" || "default"?',
+    options:[
+      {l:"A", t:'""'},{l:"B", t:'"default"'},{l:"C", t:"true"},{l:"D", t:"undefined"},
+    ],
+    explain:`Оператор <code>||</code> повертає перше <strong>truthy</strong> значення. Порожній рядок <code>""</code> є falsy, тому повертається <code>"default"</code>.`,
+    code:`<span class="str">""</span> || <span class="str">"default"</span>        <span class="cmt">// "default" — "" є falsy</span>
+<span class="str">"привіт"</span> || <span class="str">"default"</span>  <span class="cmt">// "привіт" — непорожній рядок truthy</span>
+
+<span class="cmt">// Falsy значення в JS:</span>
+<span class="cmt">// false, 0, "", null, undefined, NaN</span>`,
+  },
+  {
+    n:4, topic:"Умовні оператори", ans:"A",
+    text:"Який результат матиме вираз 0 == false?",
+    options:[
+      {l:"A", t:"true"},{l:"B", t:"false"},{l:"C", t:"undefined"},{l:"D", t:"TypeError"},
+    ],
+    explain:`Оператор <code>==</code> виконує приведення типів. <code>false</code> → <code>0</code>, тому <code>0 == 0</code> → <code>true</code>. Саме тому краще використовувати <code>===</code>.`,
+    code:`<span class="num">0</span> == <span class="kw">false</span>   <span class="cmt">// true  (false → 0, потім 0 == 0)</span>
+<span class="num">0</span> === <span class="kw">false</span>  <span class="cmt">// false (типи різні: number vs boolean)</span>
+<span class="str">""</span> == <span class="kw">false</span>  <span class="cmt">// true  ("" → 0, false → 0)</span>
+<span class="str">""</span> === <span class="kw">false</span> <span class="cmt">// false</span>`,
+  },
+  {
+    n:5, topic:"Цикли", ans:"B",
+    text:"Який цикл найкраще підходить для перебору значень масиву без використання індексів?",
+    options:[
+      {l:"A", t:"for...in"},{l:"B", t:"for...of"},{l:"C", t:"while"},{l:"D", t:"do...while"},
+    ],
+    explain:`<code>for...of</code> перебирає <strong>значення</strong> ітерабельних об'єктів. <code>for...in</code> перебирає ключі (індекси) — не підходить для масивів.`,
+    code:`<span class="kw">const</span> arr = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>];
+
+<span class="cmt">// for...of — значення ✅</span>
+<span class="kw">for</span> (<span class="kw">const</span> value <span class="kw">of</span> arr) {
+  console.<span class="fn">log</span>(value); <span class="cmt">// 10, 20, 30</span>
+}
+
+<span class="cmt">// for...in — індекси ❌ (для масивів не рекомендується)</span>
+<span class="kw">for</span> (<span class="kw">const</span> index <span class="kw">in</span> arr) {
+  console.<span class="fn">log</span>(index); <span class="cmt">// "0", "1", "2"</span>
+}`,
+  },
+  {
+    n:6, topic:"Цикли", ans:"B",
+    text:"Що зробить оператор continue всередині циклу?",
+    options:[
+      {l:"A", t:"Повністю завершить цикл"},
+      {l:"B", t:"Перейде до наступної ітерації, пропустивши решту коду в поточній"},
+      {l:"C", t:"Перезапустить цикл з початку"},
+      {l:"D", t:"Викличе помилку"},
+    ],
+    explain:`<code>continue</code> пропускає решту коду <strong>поточної ітерації</strong> і переходить до наступної. <code>break</code> — повністю зупиняє цикл.`,
+    code:`<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < <span class="num">5</span>; i++) {
+  <span class="kw">if</span> (i === <span class="num">2</span>) <span class="kw">continue</span>; <span class="cmt">// пропускає i=2</span>
+  console.<span class="fn">log</span>(i); <span class="cmt">// 0, 1, 3, 4</span>
+}`,
+  },
+  {
+    n:7, topic:"Функції", ans:"B",
+    text:"Чим arrow function відрізняється від звичайної функції щодо this?",
+    options:[
+      {l:"A", t:"Arrow function створює власний this"},
+      {l:"B", t:"Arrow function не має власного this і бере його з зовнішнього контексту"},
+      {l:"C", t:"Різниці немає"},
+      {l:"D", t:"Arrow function забороняє використання this"},
+    ],
+    explain:`Arrow function має <strong>lexical this</strong> — використовує <code>this</code> того scope де була оголошена. Звичайна функція створює власний <code>this</code>.`,
+    code:`<span class="kw">class</span> <span class="fn">Timer</span> {
+  <span class="fn">start</span>() {
+    setTimeout(<span class="kw">function</span>() {
+      console.<span class="fn">log</span>(<span class="kw">this</span>); <span class="cmt">// undefined ❌</span>
+    }, <span class="num">1000</span>);
+
+    setTimeout(() <span class="fn">=></span> {
+      console.<span class="fn">log</span>(<span class="kw">this</span>); <span class="cmt">// Timer instance ✅</span>
+    }, <span class="num">1000</span>);
+  }
+}`,
+  },
+  {
+    n:8, topic:"Функції", ans:"B",
+    text:"Що означає синтаксис function sum(...numbers)?",
+    options:[
+      {l:"A", t:"Функція приймає рівно один аргумент-масив"},
+      {l:"B", t:"numbers збере всі передані аргументи у масив (rest parameters)"},
+      {l:"C", t:"Функція не приймає аргументів"},
+      {l:"D", t:"Це синтаксична помилка"},
+    ],
+    explain:`<code>...</code> перед параметром — це <strong>rest parameters</strong>, збирає всі аргументи у масив. Не плутати зі spread який розпаковує масив.`,
+    code:`<span class="kw">function</span> <span class="fn">sum</span>(...numbers) {
+  <span class="kw">return</span> numbers.<span class="fn">reduce</span>((a, b) <span class="fn">=></span> a + b, <span class="num">0</span>);
+}
+<span class="fn">sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>); <span class="cmt">// numbers = [1,2,3,4] → 10</span>
+
+<span class="cmt">// Spread — розпаковує масив (протилежне)</span>
+<span class="kw">const</span> arr = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+<span class="fn">sum</span>(...arr); <span class="cmt">// sum(1, 2, 3)</span>`,
+  },
+  {
+    n:9, topic:"Об'єкти", ans:"C",
+    text:"Що повертає Object.entries({ a: 1, b: 2 })?",
+    options:[
+      {l:"A", t:'["a", "b"]'},{l:"B", t:"[1, 2]"},
+      {l:"C", t:'[["a", 1], ["b", 2]]'},{l:"D", t:"{ a: 1, b: 2 }"},
+    ],
+    explain:`<code>Object.entries()</code> повертає масив пар <code>[ключ, значення]</code> для кожної власної властивості об'єкта.`,
+    code:`<span class="fn">Object</span>.<span class="fn">keys</span>({ a:<span class="num">1</span>, b:<span class="num">2</span> })    <span class="cmt">// ["a", "b"]</span>
+<span class="fn">Object</span>.<span class="fn">values</span>({ a:<span class="num">1</span>, b:<span class="num">2</span> })  <span class="cmt">// [1, 2]</span>
+<span class="fn">Object</span>.<span class="fn">entries</span>({ a:<span class="num">1</span>, b:<span class="num">2</span> }) <span class="cmt">// [["a",1], ["b",2]]</span>
+
+<span class="cmt">// Зручно для перебору:</span>
+<span class="kw">for</span> (<span class="kw">const</span> [key, val] <span class="kw">of</span> <span class="fn">Object</span>.<span class="fn">entries</span>(obj)) { ... }`,
+  },
+  {
+    n:10, topic:"Об'єкти", ans:"B",
+    text:"Як за допомогою spread-оператора об'єднати об'єкти obj1 та obj2?",
+    options:[
+      {l:"A", t:"{ obj1, obj2 }"},{l:"B", t:"{ ...obj1, ...obj2 }"},
+      {l:"C", t:"[...obj1, ...obj2]"},{l:"D", t:"obj1 + obj2"},
+    ],
+    explain:`Spread для об'єктів <code>{ ...obj }</code> копіює всі власні властивості. При однакових ключах — перемагає правий об'єкт.`,
+    code:`<span class="kw">const</span> obj1 = { a: <span class="num">1</span>, b: <span class="num">2</span> };
+<span class="kw">const</span> obj2 = { b: <span class="num">3</span>, c: <span class="num">4</span> };
+<span class="kw">const</span> merged = { ...obj1, ...obj2 };
+<span class="cmt">// { a: 1, b: 3, c: 4 } — b від obj2 перемагає</span>`,
+  },
+  {
+    n:11, topic:"Події та DOM", ans:"B",
+    text:"Що таке делегування подій?",
+    options:[
+      {l:"A", t:"Видалення обробника після першого спрацювання"},
+      {l:"B", t:"Встановлення одного обробника на батьківський елемент замість обробників на кожному дочірньому"},
+      {l:"C", t:"Заборона стандартної поведінки браузера"},
+      {l:"D", t:"Створення нової події вручну"},
+    ],
+    explain:`Делегування використовує <strong>event bubbling</strong> — події спливають від дочірніх до батьківських елементів. Один обробник замість багатьох — менше пам'яті, працює для динамічних елементів.`,
+    code:`<span class="cmt">// Замість обробника на кожному li:</span>
+ul.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, (e) <span class="fn">=></span> {
+  <span class="kw">if</span> (e.target.<span class="fn">closest</span>(<span class="str">'li'</span>)) {
+    <span class="cmt">// обробляємо клік на будь-який li</span>
+    console.<span class="fn">log</span>(e.target.textContent);
+  }
+});`,
+  },
+  {
+    n:12, topic:"DOM", ans:"A",
+    text:"Який метод створює новий DOM-елемент?",
+    options:[
+      {l:"A", t:"document.createElement()"},{l:"B", t:"document.newElement()"},
+      {l:"C", t:"document.appendChild()"},{l:"D", t:"document.querySelector()"},
+    ],
+    explain:`<code>createElement()</code> створює елемент у пам'яті. Щоб він з'явився на сторінці — потрібно додати через <code>append()</code> або <code>appendChild()</code>.`,
+    code:`<span class="kw">const</span> li = document.<span class="fn">createElement</span>(<span class="str">'li'</span>);
+li.textContent = <span class="str">'Новий елемент'</span>;
+li.classList.<span class="fn">add</span>(<span class="str">'item'</span>);
+document.<span class="fn">querySelector</span>(<span class="str">'ul'</span>).<span class="fn">append</span>(li);`,
+  },
+  {
+    n:13, topic:"Масиви", ans:"B",
+    text:"Що поверне [1, 2, 3, 4].slice(1, 3)?",
+    options:[
+      {l:"A", t:"[1, 2]"},{l:"B", t:"[2, 3]"},{l:"C", t:"[2, 3, 4]"},{l:"D", t:"[1, 2, 3]"},
+    ],
+    explain:`<code>slice(start, end)</code> повертає елементи від індексу <code>start</code> до <code>end</code> (не включаючи <code>end</code>). Не змінює оригінал.`,
+    code:`[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>].<span class="fn">slice</span>(<span class="num">1</span>, <span class="num">3</span>)
+<span class="cmt">//  0   1   2   3   ← індекси</span>
+<span class="cmt">// від 1 до 3 (не включно) → [2, 3]</span>
+
+[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>].<span class="fn">slice</span>(<span class="num">2</span>)    <span class="cmt">// [3, 4] — від 2 до кінця</span>
+[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>].<span class="fn">slice</span>(-<span class="num">2</span>)   <span class="cmt">// [3, 4] — останні 2</span>`,
+  },
+  {
+    n:14, topic:"Масиви", ans:"B",
+    text:"Який метод видаляє останній елемент масиву і повертає його?",
+    options:[
+      {l:"A", t:"shift()"},{l:"B", t:"pop()"},{l:"C", t:"slice()"},{l:"D", t:"splice()"},
+    ],
+    explain:`<code>pop()</code> видаляє і повертає останній елемент. Змінює оригінальний масив.`,
+    code:`<span class="kw">const</span> arr = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+arr.<span class="fn">pop</span>();   <span class="cmt">// повертає 3,  arr = [1, 2]</span>
+arr.<span class="fn">shift</span>(); <span class="cmt">// повертає 1,  arr = [2]</span>
+arr.<span class="fn">push</span>(<span class="num">4</span>); <span class="cmt">// додає в кінець, arr = [2, 4]</span>
+arr.<span class="fn">unshift</span>(<span class="num">0</span>); <span class="cmt">// додає на початок, arr = [0, 2, 4]</span>`,
+  },
+  {
+    n:15, topic:"Функції вищого порядку", ans:"B",
+    text:"Що поверне [1, 2, 3, 4].filter(n => n % 2 === 0)?",
+    options:[
+      {l:"A", t:"[1, 3]"},{l:"B", t:"[2, 4]"},{l:"C", t:"6"},{l:"D", t:"true"},
+    ],
+    explain:`<code>filter()</code> повертає новий масив з елементами для яких callback повернув <code>true</code>. <code>n % 2 === 0</code> — перевірка на парність.`,
+    code:`[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>].<span class="fn">filter</span>(n <span class="fn">=></span> n % <span class="num">2</span> === <span class="num">0</span>)
+<span class="cmt">// 1%2=1 (false), 2%2=0 (true), 3%2=1 (false), 4%2=0 (true)</span>
+<span class="cmt">// → [2, 4]</span>`,
+  },
+  {
+    n:16, topic:"Функції вищого порядку", ans:"C",
+    text:"Який метод зводить масив до одного значення?",
+    options:[
+      {l:"A", t:"map()"},{l:"B", t:"forEach()"},{l:"C", t:"reduce()"},{l:"D", t:"find()"},
+    ],
+    explain:`<code>reduce(callback, initialValue)</code> накопичує результат проходячи по масиву. Може повернути число, рядок, об'єкт — будь-що.`,
+    code:`[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>].<span class="fn">reduce</span>((acc, n) <span class="fn">=></span> acc + n, <span class="num">0</span>)
+<span class="cmt">// 0+1=1 → 1+2=3 → 3+3=6 → 6+4=10</span>
+
+<span class="cmt">// map()     — трансформує кожен елемент → новий масив</span>
+<span class="cmt">// forEach() — перебирає, нічого не повертає</span>
+<span class="cmt">// find()    — повертає перший елемент за умовою</span>`,
+  },
+  {
+    n:17, topic:"Замикання", ans:"B",
+    text:"Яке практичне застосування замикань (closures)?",
+    options:[
+      {l:"A", t:"Прискорення циклів"},
+      {l:"B", t:"Створення приватних змінних та інкапсуляція стану"},
+      {l:"C", t:"Заміна класів"},
+      {l:"D", t:"Сортування масивів"},
+    ],
+    explain:`Замикання дозволяє функції "пам'ятати" змінні зовнішнього scope. Головне практичне застосування — <strong>приватні змінні</strong> без класів.`,
+    code:`<span class="kw">function</span> <span class="fn">createCounter</span>() {
+  <span class="kw">let</span> count = <span class="num">0</span>; <span class="cmt">// приватна — недоступна ззовні</span>
+  <span class="kw">return</span> {
+    <span class="fn">increment</span>: () <span class="fn">=></span> ++count,
+    <span class="fn">get</span>:       () <span class="fn">=></span> count
+  };
+}
+<span class="kw">const</span> c = <span class="fn">createCounter</span>();
+c.count;   <span class="cmt">// undefined — захищено!</span>
+c.<span class="fn">get</span>();   <span class="cmt">// 0 — тільки через метод</span>`,
+  },
+  {
+    n:18, topic:"Проміси та async/await", ans:"B",
+    text:"Що повертає функція, оголошена з ключовим словом async?",
+    options:[
+      {l:"A", t:"Звичайне значення"},{l:"B", t:"Promise"},
+      {l:"C", t:"undefined"},{l:"D", t:"Callback"},
+    ],
+    explain:`Будь-яка <code>async</code> функція <strong>завжди повертає Promise</strong>, навіть якщо return повертає звичайне значення — воно автоматично обгортається.`,
+    code:`<span class="kw">async function</span> <span class="fn">greet</span>() {
+  <span class="kw">return</span> <span class="str">"Привіт"</span>;
+}
+<span class="fn">greet</span>();           <span class="cmt">// Promise { "Привіт" }</span>
+<span class="fn">greet</span>().<span class="fn">then</span>(console.log); <span class="cmt">// "Привіт"</span>
+
+<span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">greet</span>(); <span class="cmt">// "Привіт"</span>`,
+  },
+  {
+    n:19, topic:"Проміси та async/await", ans:"B",
+    text:"Для чого використовується Promise.all([...])?",
+    options:[
+      {l:"A", t:"Виконує проміси послідовно один за одним"},
+      {l:"B", t:"Чекає завершення всіх промісів і повертає масив їхніх результатів"},
+      {l:"C", t:"Повертає результат першого завершеного проміса"},
+      {l:"D", t:"Скасовує всі проміси"},
+    ],
+    explain:`<code>Promise.all</code> запускає всі проміси <strong>паралельно</strong> і чекає поки всі завершаться. Якщо хоч один впаде — весь <code>Promise.all</code> відхиляється.`,
+    code:`<span class="kw">const</span> [users, posts] = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">all</span>([
+  <span class="fn">fetch</span>(<span class="str">'/users'</span>).<span class="fn">then</span>(r <span class="fn">=></span> r.<span class="fn">json</span>()),
+  <span class="fn">fetch</span>(<span class="str">'/posts'</span>).<span class="fn">then</span>(r <span class="fn">=></span> r.<span class="fn">json</span>()),
+]);
+<span class="cmt">// Promise.race     — перший завершений</span>
+<span class="cmt">// Promise.allSettled — всі, навіть якщо деякі впали</span>`,
+  },
+  {
+    n:20, topic:"Класи та ООП", ans:"B",
+    text:"Що робить ключове слово super у конструкторі дочірнього класу?",
+    options:[
+      {l:"A", t:"Створює статичний метод"},
+      {l:"B", t:"Викликає конструктор батьківського класу"},
+      {l:"C", t:"Робить поле приватним"},
+      {l:"D", t:"Видаляє батьківський клас"},
+    ],
+    explain:`<code>super()</code> обов'язково викликати в конструкторі дочірнього класу перед використанням <code>this</code>. <code>super.method()</code> — виклик методу батьківського класу.`,
+    code:`<span class="kw">class</span> <span class="fn">Vehicle</span> {
+  <span class="fn">constructor</span>(brand) { <span class="kw">this</span>.brand = brand; }
+  <span class="fn">describe</span>() { <span class="kw">return</span> <span class="kw">this</span>.brand; }
+}
+<span class="kw">class</span> <span class="fn">Car</span> <span class="kw">extends</span> <span class="fn">Vehicle</span> {
+  <span class="fn">constructor</span>(brand, doors) {
+    <span class="kw">super</span>(brand);   <span class="cmt">// ← викликає Vehicle constructor</span>
+    <span class="kw">this</span>.doors = doors;
+  }
+  <span class="fn">describe</span>() {
+    <span class="kw">return super</span>.<span class="fn">describe</span>() + <span class="str">' — '</span> + <span class="kw">this</span>.doors + <span class="str">'дв.'</span>;
+  }
+}`,
+  },
+];
+
+// ── Зведена таблиця ──────────────────────────────────────────
+document.getElementById('ans-grid').innerHTML = data.map(q =>
+  `<div class="ans-cell">
+    <div class="ans-num">${q.n}</div>
+    <div class="ans-letter">${q.ans}</div>
+  </div>`
+).join('');
+
+// ── Питання ───────────────────────────────────────────────────
+document.getElementById('questions').innerHTML = data.map(q => `
+  <div class="question">
+    <div class="q-header" onclick="toggle(${q.n})">
+      <div class="q-num">${q.n}</div>
+      <div class="q-title-wrap">
+        <div class="q-topic">${q.topic}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-ans">
+          <span class="ans-badge">Відповідь: ${q.ans}</span>
+        </div>
+      </div>
+      <div class="q-arrow" id="arrow-${q.n}">▼</div>
+    </div>
+    <div class="q-body" id="body-${q.n}">
+      <div class="q-explain">${q.explain}</div>
+      <div class="options">
+        ${q.options.map(o => `
+          <div class="option ${o.l===q.ans?'correct':'wrong'}">
+            <strong>${o.l})</strong> ${o.t}
+          </div>`).join('')}
+      </div>
+      ${q.code ? `<pre>${q.code}</pre>` : ''}
+    </div>
+  </div>
+`).join('');
+
+function toggle(n) {
+  const body  = document.getElementById('body-'+n);
+  const arrow = document.getElementById('arrow-'+n);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+</script>
+</body>
+</html>
